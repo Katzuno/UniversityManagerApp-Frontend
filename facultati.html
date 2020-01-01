@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+    <script
+            src="https://code.jquery.com/jquery-3.4.1.min.js"
+            integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+            crossorigin="anonymous"></script>
+
+    <script src="js/scripts.js"></script>
+
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+    <title>Title</title>
+</head>
+<body>
+<!-- Dropdown Structure -->
+<ul id="dropdown1" class="dropdown-content">
+    <li><a href="examene.html">Examene</a></li>
+    <li><a href="facultati.html">Facultati</a></li>
+    <li class="divider"></li>
+    <li><a href="candidati.html">Candidati</a></li>
+</ul>
+<nav>
+    <div class="nav-wrapper">
+        <a href="/" class="brand-logo">Universitatea Bucuresti</a>
+        <ul class="right hide-on-med-and-down">
+
+            <li><a class="dropdown-trigger" href="#!" data-target="dropdown1">Administrare</a></li>
+        </ul>
+    </div>
+</nav>
+
+
+<div class="container">
+    <!-- Page Content goes here -->
+    <div class="row">
+        <div class = "col s12">
+            <center><H1> Administrare facultati </H1></center>
+        </div>
+    </div>
+    <div class = "row">
+        <div class = "col s12">
+            <h2> Lista facultati: </h2>
+        </div>
+        <table class = "highlight">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nume facultate</th>
+                <th>Actiuni</th>
+            </tr>
+            </thead>
+
+            <tbody id = "faculties-table-content">
+
+            </tbody>
+        </table>
+    </div>
+    <div class = "col s12">
+        <h2> Adauga examene </h2>
+        <form method = "POST" id = "add_exam">
+            <input type = "number" placeholder="ID Facultate" id = "id_fac"></input>
+            <input type = "text" placeholder="Nume examen" id = "exam_name"></input>
+            <input type = "date" placeholder="Data examen" id = "exam_date"></input>
+            <input type = "submit" id = "add_exam_submit_btn" class = "btn waves-effect waves-light" value = "Adauga">
+        </form>
+    </div>
+
+    <div class = "col s12">
+        <h3 id = "nume-facultate"> Examene </h3>
+        <table class = "highlight" id = "examene">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nume examen</th>
+                <th>Actiuni</th>
+            </tr>
+            </thead>
+
+            <tbody id = "exams-table-content">
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class = "col s12">
+    <h2> Inregistreaza candidat </h2>
+    <form method = "POST" id = "add_candidate">
+        <input type = "number" placeholder="ID Examen" id = "id_exam"></input>
+        <input type = "text" placeholder="Nume Candidat" id = "candid_name"></input>
+        <input type = "text" placeholder="Prenume candidat" id = "candid_prename"></input>
+        <input type = "text" placeholder="Medie bac" id = "candid_medie_bac"></input>
+        <input type = "submit" id = "add_candid_submit_btn" class = "btn waves-effect waves-light" value = "Inregistreaza candidat">
+    </form>
+</div>
+
+<div class = "col s12">
+    <h3 id = "candidates-title"> Candidati </h3>
+    <table class = "highlight" id = "candidates">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nume candidat</th>
+            <th>Prenume candidat</th>
+            <th>Medie bac</th>
+            <th>Medie examen</th>
+            <th>Medie admitere</th>
+            <th>Actiuni</th>
+        </tr>
+        </thead>
+
+        <tbody id = "candidates-table-content">
+
+        </tbody>
+    </table>
+</div>
+
+<div class = "col s12">
+    <h2> Corecteaza medie examen candidat </h2>
+    <form method = "POST" id = "update_medie_candidat">
+        <input type = "text" placeholder="ID Candidat" id = "candidate_medie_id"></input>
+        <input type = "text" placeholder="Medie examen" id = "candidate_medie_examen"></input>
+        <input type = "submit" id = "update_medie" class = "btn waves-effect waves-light" value = "Corecteaza examen">
+    </form>
+</div>
+</div>
+
+
+
+<footer>
+    <script type = "text/javascript">
+        $.ajaxSetup({
+            contentType: "application/json; charset=utf-8",
+            crossDomain: true
+        });
+        $.ajax({
+            url: "http://localhost:8080/faculties",
+            type: 'GET',
+            dataType: 'json',
+            success: function(res) {
+                str = "";
+                for (i in res)
+                {
+                    j = parseInt(i) + 1;
+
+                    str = str + "<tr>";
+                    str = str + "<td>" + j + "</td>";
+                    str = str + "<td>" + res[i].name + "</td>";
+                    jstr = "test";
+                    str = str + "<td>" + "<button class = 'list-exams btn waves-effect' onclick = listExams(" + j+ ")> Listeaza examene </button>"
+                        + "<button class = 'btn waves-effect' onclick = deleteFaculty(" + j+ ")> Sterge facultate </button>"+ "</td>";
+                    str = str + "</tr>";
+                }
+                $("#faculties-table-content").html(str);
+            }
+        });
+
+        $( "#add_exam" ).submit(function( event ) {
+            alert( $("#exam_name").val() );
+            event.preventDefault();
+
+            $.post( "http://localhost:8080/addExamen", JSON.stringify({ exam_name: $("#exam_name").val(), exam_date:"2019-01-01"}))
+                .done(function (res) {
+                    $.get( "http://localhost:8080/getExamId/" + $("#exam_name").val() )
+                        .done(function( data ) {
+                            $.post("http://localhost:8080/addExamToFac", JSON.stringify({examId: parseInt(data), facId: $("#id_fac").val()}))
+                                .done(function (data) {
+                                    alert(data);
+                                    }
+                                );
+                        });
+                });
+
+        });
+        $( "#add_candidate" ).submit(function( event ) {
+            event.preventDefault();
+
+            $.post( "http://localhost:8080/addCandidate", JSON.stringify({ nume: $("#candid_name").val(), prenume: $("#candid_prename").val(), medie_bac: $("#candid_medie_bac").val()}))
+                .done(function (res) {
+                    $.get( "http://localhost:8080/getCandidateId/" + $("#candid_name").val() )
+                        .done(function( data ) {
+                            $.post("http://localhost:8080/enrollCandidate", JSON.stringify({candidateId: parseInt(data), examId: $("#id_exam").val()}))
+                                .done(function (data) {
+                                        alert(data);
+                                    }
+                                );
+                        });
+                });
+
+        });
+
+        function listExams(id)
+        {
+            $.get("http://localhost:8080/facExams/" + id)
+                .done(function(res)
+                {
+                    str = "";
+                    for (i in res)
+                    {
+                        var j = 0;
+
+                        $.ajax({
+                            url: "http://localhost:8080/getExamId/" + res[i].exam_name,
+                            type: 'GET',
+                            dataType: 'json',
+                            async: false,
+                            success: function(res) {
+                                j = parseInt(res);
+                            }
+                        });
+                        str = str + "<tr>";
+                        str = str + "<td>" + j + "</td>";
+                        str = str + "<td>" + res[i].exam_name + "</td>";
+                        str = str + "<td>" + "<button class = 'list-exams btn waves-effect' onclick = listCandidates(" + j+ ")> Listeaza Candidati </button>"
+                            + "<button class = 'btn waves-effect' onclick = deleteExam(" + j+ ")> Sterge examenul </button>"+ "</td>";
+                            "</td>";
+                        str = str + "</tr>";
+                    }
+
+                    $("#exams-table-content").html(str);
+                    $([document.documentElement, document.body]).animate({
+                        scrollTop: $("#examene").offset().top
+                    }, 2000);
+                });
+        }
+
+        function deleteExam(id)
+        {
+            $.post("http://localhost:8080/delExam/" + id)
+                .done(function(res)
+                {
+                    alert("Exam " + id + " deleted");
+                });
+        }
+
+        function listCandidates(id)
+        {
+            $.get("http://localhost:8080/getExamCandidates/" + id)
+                .done(function(res)
+                {
+                    str = "";
+                    for (i in res)
+                    {
+
+                        var j = 0;
+
+                        $.ajax({
+                            url: "http://localhost:8080/getCandidateId/" + res[i].nume,
+                            type: 'GET',
+                            dataType: 'json',
+                            async: false,
+                            success: function(res) {
+                                j = parseInt(res);
+                            }
+                        });
+
+                        str = str + "<tr>";
+                        str = str + "<td>" + j + "</td>";
+                        str = str + "<td>" + res[i].nume + "</td>";
+                        str = str + "<td>" + res[i].prenume + "</td>";
+                        str = str + "<td>" + res[i].medie_bac + "</td>";
+                        str = str + "<td>" + res[i].medie_examen + "</td>";
+                        str = str + "<td>" + res[i].medie_admitere + "</td>";
+                        str = str + "<td>" + "<button class = 'list-exams btn waves-effect' onclick = editCandidate(" + j+ ")> Editeaza  </button>"
+                            + "<button class = 'btn waves-effect' onclick = deleteCandidate(" + j+ ")> Sterge candidatul </button>"+ "</td>";
+                        "</td>";
+                        str = str + "</tr>";
+                    }
+
+                    $("#candidates-table-content").html(str);
+                    $([document.documentElement, document.body]).animate({
+                        scrollTop: $("#candidates").offset().top
+                    }, 2000);
+                });
+        }
+
+        function deleteCandidate(id)
+        {
+            $.post("http://localhost:8080/delCandidate/" + id)
+                .done(function(res)
+                {
+                    alert("Candidate " + id + " deleted");
+                    window.reload();
+                });
+        }
+
+        function deleteFaculty(id)
+        {
+            $.post("http://localhost:8080/delFac/" + id)
+                .done(function(res)
+                {
+                    alert("Faculty " + id + " deleted");
+                });
+        }
+
+        $( "#update_medie_candidat" ).submit(function( event ) {
+            event.preventDefault();
+
+            $.post( "http://localhost:8080/updateCandidatMedie",
+                JSON.stringify({ candidateId: parseInt($("#candidate_medie_id").val()), medie_examen:parseFloat($("#candidate_medie_examen").val())}))
+                .done(function (res) {
+                    alert(res);
+                });
+
+        });
+
+
+    </script>
+</footer>
+</body>
+</html>
